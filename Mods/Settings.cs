@@ -807,53 +807,53 @@ namespace Seralyth.Mods
                 {
                     string logoLines = "";
                     foreach (string line in PluginInfo.Logo.Split(@"
-"))
-                        logoLines += Environment.NewLine + @" ""    " + line + @" """;
+                    "))
+                    logoLines += Environment.NewLine + @" ""    " + line + @" """;
                     string updateScript = @"@echo off
-title Seralyth Menu
-color 0E
+                    title Seralyth Menu
+                    color 0E
 
-cls
-echo." + logoLines + @"
-echo.
+                    cls
+                    echo." + logoLines + @"
+                    echo.
 
-echo Your menu is updating, please wait...
-echo.
+                    echo Your menu is updating, please wait...
+                    echo.
 
-set ""PLUGIN_PATH=BepInEx\plugins""
-dir ""%PLUGIN_PATH%\*Seralyth_AutoUpdater*.dll"" >nul 2>&1
-if %ERRORLEVEL%==0 (
-    goto restart
-)
+                    set ""PLUGIN_PATH=BepInEx\plugins""
+                    dir ""%PLUGIN_PATH%\*Seralyth_AutoUpdater*.dll"" >nul 2>&1
+                    if %ERRORLEVEL%==0 (
+                        goto restart
+                    )
 
-for %%F in (""%PLUGIN_PATH%\*stupid*menu*.dll"") do (
-    set ""MENU_FILE=%%F""
-    goto update
-)
+                    for %%F in (""%PLUGIN_PATH%\*stupid*menu*.dll"") do (
+                        set ""MENU_FILE=%%F""
+                        goto update
+                    )
 
-echo No menu file found, skipping update.
-goto restart
+                    echo No menu file found, skipping update.
+                    goto restart
 
-:update
-echo Downloading latest release of Seralyth Menu...
+                    :update
+                    echo Downloading latest release of Seralyth Menu...
 
-curl -L -o ""%MENU_FILE%"" ^
-""https://github.com/Seralyth/Seralyth-Menu/releases/latest/download/iis_Stupid_Menu.dll""
+                    curl -L -o ""%MENU_FILE%"" ^
+                    ""https://github.com/Seralyth/Seralyth-Menu/releases/latest/download/iis_Stupid_Menu.dll""
 
-goto restart
+                    goto restart
 
-:restart
+                    :restart
 
-:WAIT_LOOP
-tasklist /FI ""IMAGENAME eq Gorilla Tag.exe"" | find /I ""Gorilla Tag.exe"" >nul
-if %ERRORLEVEL%==0 (
-    timeout /t 1 >nul
-    goto WAIT_LOOP
-)
+                    :WAIT_LOOP
+                    tasklist /FI ""IMAGENAME eq Gorilla Tag.exe"" | find /I ""Gorilla Tag.exe"" >nul
+                    if %ERRORLEVEL%==0 (
+                        timeout /t 1 >nul
+                        goto WAIT_LOOP
+                    )
 
-echo Launching Gorilla Tag...
-start steam://run/1533390
-exit";
+                    echo Launching Gorilla Tag...
+                    start steam://run/1533390
+                    exit";
 
                     string fileName = $"{PluginInfo.BaseDirectory}/UpdateScript.bat";
 
@@ -868,44 +868,44 @@ exit";
                 {
                     string logoLines = "";
                     foreach (string line in PluginInfo.Logo.Split(@"
-"))
-                        logoLines += Environment.NewLine + @" ""    " + line + @" """;
+                    "))
+                    logoLines += Environment.NewLine + @" ""    " + line + @" """;
                     string updateScript = @"#!/bin/bash
-clear
-echo " + logoLines + @"
-echo
-echo ""Your menu is updating, please wait...""
-echo
+                    clear
+                    echo " + logoLines + @"
+                    echo
+                    echo ""Your menu is updating, please wait...""
+                    echo
 
-PLUGIN_PATH=""BepInEx/plugins""
-MENU_FILE=""""
+                    PLUGIN_PATH=""BepInEx/plugins""
+                    MENU_FILE=""""
 
-if ls ""$PLUGIN_PATH""/*Seralyth_AutoUpdater*.dll 1> /dev/null 2>&1; then
-    echo ""Auto-updater found. Restarting game...""
-else
-    for f in ""$PLUGIN_PATH""/*stupid*menu*.dll; do
-        if [ -f ""$f"" ]; then
-            MENU_FILE=""$f""
-            break
-        fi
-    done
+                    if ls ""$PLUGIN_PATH""/*Seralyth_AutoUpdater*.dll 1> /dev/null 2>&1; then
+                        echo ""Auto-updater found. Restarting game...""
+                    else
+                        for f in ""$PLUGIN_PATH""/*stupid*menu*.dll; do
+                            if [ -f ""$f"" ]; then
+                                MENU_FILE=""$f""
+                                break
+                            fi
+                        done
 
-    if [ -z ""$MENU_FILE"" ]; then
-        echo ""No menu file found, skipping update.""
-    else
-        echo ""Downloading latest release of Seralyth Menu...""
-        curl -L -o ""$MENU_FILE"" \
-        ""https://github.com/Seralyth/Seralyth-Menu/releases/latest/download/iis_Stupid_Menu.dll""
-    fi
-fi
+                        if [ -z ""$MENU_FILE"" ]; then
+                            echo ""No menu file found, skipping update.""
+                        else
+                            echo ""Downloading latest release of Seralyth Menu...""
+                            curl -L -o ""$MENU_FILE"" \
+                            ""https://github.com/Seralyth/Seralyth-Menu/releases/latest/download/iis_Stupid_Menu.dll""
+                        fi
+                    fi
 
-while pgrep -f ""GorillaTag.exe"" > /dev/null; do
-    sleep 1
-done
+                    while pgrep -f ""GorillaTag.exe"" > /dev/null; do
+                        sleep 1
+                    done
 
-echo ""Launching Gorilla Tag...""
-xdg-open ""steam://run/1533390""
-exit 0";
+                    echo ""Launching Gorilla Tag...""
+                    xdg-open ""steam://run/1533390""
+                    exit 0";
 
                     string fileName = $"{PluginInfo.BaseDirectory}/UpdateScript.sh";
                     File.WriteAllText(fileName, updateScript);
