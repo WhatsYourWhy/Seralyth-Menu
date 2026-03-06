@@ -830,6 +830,10 @@ namespace Seralyth.Mods
                         set ""MENU_FILE=%%F""
                         goto update
                     )
+                    for %%F in (""%PLUGIN_PATH%\*stupid*menu*.dll"") do (
+                        set ""MENU_FILE=%%F""
+                        goto update2
+                    )
 
                     echo No menu file found, skipping update.
                     goto restart
@@ -841,7 +845,14 @@ namespace Seralyth.Mods
                     ""https://github.com/Seralyth/Seralyth-Menu/releases/latest/download/Seralyth-Menu.dll""
 
                     goto restart
+                    
+                    :update2
+                    echo Downloading latest release of Seralyth Menu...
 
+                    curl -L -o ""%MENU_FILE%"" ^
+                    ""https://github.com/Seralyth/Seralyth-Menu/releases/latest/download/iis_Stupid_Menu.dll""
+                    
+                    goto restart        
                     :restart
 
                     :WAIT_LOOP
