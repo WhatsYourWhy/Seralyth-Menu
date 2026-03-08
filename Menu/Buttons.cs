@@ -2181,6 +2181,8 @@ namespace Seralyth.Menu
 
                 new ButtonInfo { buttonText = "Instant Tag", enableMethod =() => Advantages.instantTag = true, disableMethod =() => Advantages.instantTag = false, enabled = true, toolTip = "Makes the tag instant."},
                 new ButtonInfo { buttonText = "Obnoxious Tag", toolTip = "Makes the tag mods more obnoxious. Instead of hiding in the ground, you teleport around the player like crazy."},
+                new ButtonInfo { buttonText = "Prettier Visualize", toolTip = "Makes the visualizers look prettier."},
+                new ButtonInfo { buttonText = "Visualize Tag Aura", toolTip = "Visualizes the distance threshold for the tag aura."},
                 new ButtonInfo { buttonText = "Visualize Tag Reach", toolTip = "Visualizes the distance threshold for the tag reach."},
 
                 new ButtonInfo { buttonText = "ctaRange", overlapText = "Change Tag Aura Range <color=grey>[</color><color=green>Normal</color><color=grey>]</color>", method =() => Advantages.ChangeTagAuraRange(), enableMethod =() => Advantages.ChangeTagAuraRange(), disableMethod =() => Advantages.ChangeTagAuraRange(false), incremental = true, isTogglable = false, toolTip = "Changes the range of the tag aura mods."},

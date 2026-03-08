@@ -87,10 +87,11 @@ namespace Seralyth.Mods
             auraRenderer.material.color = clr;
         }
 
-        public static readonly Dictionary<(Vector3, Quaternion, Vector3), GameObject> cubePool = new Dictionary<(Vector3, Quaternion, Vector3), GameObject>();
-        public static void VisualizeCube(Vector3 position, Quaternion rotation, Vector3 scale, Color color, float alpha = 0.25f)
+        public static readonly Dictionary<long, GameObject> cubePool = new Dictionary<long, GameObject>();
+        public static void VisualizeCube(Vector3 position, Quaternion rotation, Vector3 scale, Color color, long? indexId = null, float alpha = 0.25f)
         {
-            var key = (position, rotation, scale);
+            long index = indexId ?? BitPackUtils.PackWorldPosForNetwork(position);
+            var key = index;
 
             if (!cubePool.TryGetValue(key, out GameObject visualizeGO))
             {
@@ -98,6 +99,36 @@ namespace Seralyth.Mods
                 Object.Destroy(visualizeGO.GetComponent<Collider>());
 
                 cubePool.Add(key, visualizeGO);
+            }
+
+            visualizeGO.SetActive(true);
+
+            visualizeGO.transform.position = position;
+            visualizeGO.transform.localScale = scale;
+            visualizeGO.transform.rotation = rotation;
+
+            if (Buttons.GetIndex("Hidden on Camera").enabled)
+                visualizeGO.layer = 19;
+
+            Renderer auraRenderer = visualizeGO.GetComponent<Renderer>();
+
+            Color clr = color;
+            clr.a = alpha;
+            auraRenderer.material.shader = Shader.Find("GUI/Text Shader");
+            auraRenderer.material.color = clr;
+        }
+
+        public static readonly Dictionary<long, GameObject> cylinderPool = new Dictionary<long, GameObject>();
+        public static void VisualizeCylinder(Vector3 position, Quaternion rotation, Vector3 scale, Color color, long? indexId = null, float alpha = 0.25f)
+        {
+            long index = indexId ?? BitPackUtils.PackWorldPosForNetwork(position);
+            var key = index;
+
+            if (!cylinderPool.TryGetValue(key, out GameObject visualizeGO))
+            {
+                visualizeGO = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                Object.Destroy(visualizeGO.GetComponent<Collider>());
+                cylinderPool.Add(key, visualizeGO);
             }
 
             visualizeGO.SetActive(true);

@@ -2191,8 +2191,8 @@ namespace Seralyth.Mods
 
         public static void VisualizePlayerPosition(PlayerPosition position, Color color, float alpha = 0.15f)
         {
-            Visuals.VisualizeCube(position.position, Quaternion.LookRotation(position.velocity), new Vector3(0.1f, 0.1f, 0.25f), color, alpha);
-            Visuals.VisualizeCube(position.position + position.velocity.normalized * 0.125f, Quaternion.LookRotation(position.velocity), new Vector3(0.15f, 0.15f, 0.05f), color, alpha);
+            Visuals.VisualizeCube(position.position, Quaternion.LookRotation(position.velocity), new Vector3(0.1f, 0.1f, 0.25f), color, -39228393, alpha);
+            Visuals.VisualizeCube(position.position + position.velocity.normalized * 0.125f, Quaternion.LookRotation(position.velocity), new Vector3(0.15f, 0.15f, 0.05f), color, -48492012, alpha);
             Visuals.VisualizeAura(position.leftHand.position, 0.15f, color, null, alpha);
             Visuals.VisualizeAura(position.rightHand.position, 0.15f, color, null, alpha);
         }

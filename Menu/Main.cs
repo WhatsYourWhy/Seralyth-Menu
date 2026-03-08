@@ -1276,8 +1276,8 @@ namespace Seralyth.Menu
                     foreach ((long, float) item in toRemoveAura)
                         Visuals.auraPool.Remove(item);
 
-                    List<(Vector3, Quaternion, Vector3)> toRemoveCube = new List<(Vector3, Quaternion, Vector3)>();
-                    foreach (KeyValuePair<(Vector3, Quaternion, Vector3), GameObject> key in Visuals.cubePool)
+                    List<long> toRemoveCube = new List<long>();
+                    foreach (KeyValuePair<long, GameObject> key in Visuals.cubePool)
                     {
                         if (!key.Value.activeSelf)
                         {
@@ -1288,8 +1288,23 @@ namespace Seralyth.Menu
                             key.Value.SetActive(false);
                     }
 
-                    foreach ((Vector3, Quaternion, Vector3) item in toRemoveCube)
+                    foreach (long item in toRemoveCube)
                         Visuals.cubePool.Remove(item);
+
+                    List<long> toRemoveCylinder = new List<long>();
+                    foreach (KeyValuePair<long, GameObject> key in Visuals.cylinderPool)
+                    {
+                        if (!key.Value.activeSelf)
+                        {
+                            toRemoveCube.Add(key.Key);
+                            Destroy(key.Value);
+                        }
+                        else
+                            key.Value.SetActive(false);
+                    }
+
+                    foreach (long item in toRemoveCylinder)
+                        Visuals.cylinderPool.Remove(item);
 
                     List<string> toRemoveLabel = new List<string>();
                     foreach (KeyValuePair<string, GameObject> label in Visuals.labelDictionary)

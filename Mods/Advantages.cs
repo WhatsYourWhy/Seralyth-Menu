@@ -393,8 +393,14 @@ namespace Seralyth.Mods
 
         public static void TagAura()
         {
+            Color color = Color.red;
             foreach (var vrrig in VRRigCache.ActiveRigs.Where(vrrig => VRRig.LocalRig.IsTagged() && !vrrig.IsTagged() && !GTPlayer.Instance.disableMovement && Vector3.Distance(vrrig.headMesh.transform.position, GorillaTagger.Instance.bodyCollider.transform.position) < tagAuraDistance))
+            {
+                color = Color.green;
                 ReportTag(vrrig);
+            }
+            if (Buttons.GetIndex("Visualize Tag Aura").enabled)
+                Visuals.VisualizeCylinder(VRRig.LocalRig.bodyTransform.position, Quaternion.identity, new Vector3(tagAuraDistance, 0.01f, tagAuraDistance), Buttons.GetIndex("Prettier Visualize").enabled ? color : backgroundColor.GetCurrentColor(), -20170121181, 0.1f);
         }
 
         public static void GripTagAura()
