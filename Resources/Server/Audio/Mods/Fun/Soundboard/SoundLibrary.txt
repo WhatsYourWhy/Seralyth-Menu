@@ -209,4 +209,3 @@ Animation Warrior Theme;Animation%20Warrior%20Theme.ogg
 Muehehe;Muehehe.ogg
 Batman;Batman.ogg
 Mi Bomb;Mibombo.ogg
-BIRDBRAIN;BIRDBRAIN.ogg
