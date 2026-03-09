@@ -6975,6 +6975,19 @@ namespace Seralyth.Mods
             }
         }
 
+        public static void SetMasterClient(bool skip = false)
+        {
+            if (PhotonNetwork.IsMasterClient)
+                return;
+            if (PhotonNetwork.PlayerList.Length > 5)
+            {
+                if (!skip) 
+                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> {PhotonNetwork.PlayerList.Length - 5} people must leave for this mod to work.");
+                return;
+            }
+            PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
+        }
+
         public static void SetRoomStatus(bool status)
         {
             Dictionary<byte, object> dictionary = new Dictionary<byte, object>

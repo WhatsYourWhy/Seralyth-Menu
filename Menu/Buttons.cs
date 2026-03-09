@@ -2073,6 +2073,9 @@ namespace Seralyth.Menu
 
                 new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Lag</color><color=grey>]</color>", method = Overpowered.AntiReportLag, toolTip = "Lags whoever tries to report you."},
 
+                new ButtonInfo { buttonText = "Set Master Client", method = () => Overpowered.SetMasterClient(), isTogglable = false, toolTip = "Makes you master client if there are 5 or less people in the lobby."},
+                new ButtonInfo { buttonText = "Auto Set Master Client", method = () => Overpowered.SetMasterClient(true), toolTip = "Automatically makes you master client if there are 5 or less people in the lobby."},
+
                 new ButtonInfo { buttonText = "Barrel Punch Mod", method = Overpowered.BarrelPunchMod, toolTip = "Flings people when you punch them."},
 
                 new ButtonInfo { buttonText = "Barrel Fling Gun", enableMethod =() => Fun.CheckOwnedThrowable(Overpowered.BarrelIndex), method = Overpowered.BarrelFlingGun, toolTip = "Flings whoever your hand desires using the barrels."},
