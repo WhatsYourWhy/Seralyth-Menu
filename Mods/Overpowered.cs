@@ -6978,7 +6978,7 @@ namespace Seralyth.Mods
         public static float setMasterDelay;
         public static void SetMasterClient(bool skip = false)
         {
-            if (PhotonNetwork.IsMasterClient)
+            if (NetworkSystem.Instance.IsMasterClient)
                 return;
             if (PhotonNetwork.PlayerList.Length > 5)
             {

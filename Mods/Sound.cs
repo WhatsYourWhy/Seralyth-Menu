@@ -287,7 +287,7 @@ namespace Seralyth.Mods
 
         private static GameObject soundboardAudioManager;
 
-        public static bool localSoundboard;
+        public static bool disableLocalSoundboard;
         public static void PlayAudio(AudioClip sound, bool disableMicrophone = false)
         {
             if (!PhotonNetwork.InRoom)

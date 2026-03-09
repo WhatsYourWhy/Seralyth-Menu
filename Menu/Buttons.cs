@@ -2073,9 +2073,6 @@ namespace Seralyth.Menu
 
                 new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Lag</color><color=grey>]</color>", method = Overpowered.AntiReportLag, toolTip = "Lags whoever tries to report you."},
 
-                new ButtonInfo { buttonText = "Set Master Client", method = () => Overpowered.SetMasterClient(), isTogglable = false, toolTip = "Makes you master client if there are 5 or less people in the lobby."},
-                new ButtonInfo { buttonText = "Auto Set Master Client", method = () => Overpowered.SetMasterClient(true), toolTip = "Automatically makes you master client if there are 5 or less people in the lobby."},
-
                 new ButtonInfo { buttonText = "Barrel Punch Mod", method = Overpowered.BarrelPunchMod, toolTip = "Flings people when you punch them."},
 
                 new ButtonInfo { buttonText = "Barrel Fling Gun", enableMethod =() => Fun.CheckOwnedThrowable(Overpowered.BarrelIndex), method = Overpowered.BarrelFlingGun, toolTip = "Flings whoever your hand desires using the barrels."},
@@ -2401,7 +2398,7 @@ namespace Seralyth.Menu
                 new ButtonInfo { buttonText = "Change Soundboard Volume", overlapText = "Change Soundboard Volume <color=grey>[</color><color=green>1</color><color=grey>]</color>", method =() => Fun.ChangeSoundboardVolume(), enableMethod =() => Fun.ChangeSoundboardVolume(), disableMethod =() => Fun.ChangeSoundboardVolume(false), incremental = true, isTogglable = false, toolTip = "Changes the volume of your sounds." },
 
                 new ButtonInfo { buttonText = "Change Soundboard Speed", overlapText = "Change Soundboard Speed <color=grey>[</color><color=green>1</color><color=grey>]</color>", method =() => Fun.ChangeSoundboardPitch(), enableMethod =() => Fun.ChangeSoundboardPitch(), disableMethod =() => Fun.ChangeSoundboardPitch(false), incremental = true, isTogglable = false, toolTip = "Changes the speed of your sounds" },
-                new ButtonInfo { buttonText = "Local Soundboard", enableMethod =() => Sound.localSoundboard = true, disableMethod =()=> Sound.localSoundboard = false, enabled = true, toolTip = "Decides if you should hear your own soundboards or not." },
+                new ButtonInfo { buttonText = "Disable Local Soundboard", enableMethod =() => Sound.disableLocalSoundboard = true, disableMethod =()=> Sound.disableLocalSoundboard = false, toolTip = "Decides if you should hear your own soundboards or not." },
             },
 
             new[] { // Overpowered Settings [31]

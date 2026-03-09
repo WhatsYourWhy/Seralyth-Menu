@@ -762,7 +762,7 @@ namespace Seralyth.Menu
                         }
                     } else if (RecorderPatch.enabled)
                     {
-                        bool enabled = (VoiceManager.Get().AudioClips.Any() && Sound.localSoundboard)
+                        bool enabled = (VoiceManager.Get().AudioClips.Any() && !Sound.disableLocalSoundboard)
                          || VoiceManager.Get().PostProcessors.Any()
                          || VoiceManager.Get().Pitch != 1f;
 
