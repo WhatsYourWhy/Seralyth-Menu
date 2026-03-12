@@ -123,7 +123,7 @@ If you wish to support us, here are some of the ways you can!
 > Menu sends requests to https://text.pollinations.ai for the mod **AI Assistant**. (when enabled)<br>
 > Menu sends requests to https://lazypy.ro for many TTS voices.<br>
 > Menu connects to wss://menu.seralyth.software for friend system and administrative purposes.<br>
-> The donate, search, star and speak symbols are made by [Icons8](https://icons8.com).
+> The donate, search, star and speak symbols are provided from [Icons8](https://icons8.com).
 
 > Seralyth Menu  README.md<br>
 > A community driven mod menu for Gorilla Tag with over 1000+ mods
@@ -143,3 +143,5 @@ If you wish to support us, here are some of the ways you can!
 > 
 > You should have received a copy of the GNU General Public License
 > along with this program.  If not, see <https://www.gnu.org/licenses>.
+
+> This product is not affiliated with Another Axiom Inc. or its videogames Gorilla Tag and Orion Drift and is not endorsed or otherwise sponsored by Another Axiom. Portions of the materials contained herein are property of Another Axiom. ©2021 Another Axiom Inc.
