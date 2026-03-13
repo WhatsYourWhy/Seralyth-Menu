@@ -2092,7 +2092,6 @@ namespace Seralyth.Menu
 
                 new ButtonInfo { buttonText = "Lock Room", method =() => Overpowered.SetRoomStatus(false), isTogglable = false, toolTip = "Locks the room so no one else can join."},
                 new ButtonInfo { buttonText = "Unlock Room", method =() => Overpowered.SetRoomStatus(true), isTogglable = false, toolTip = "Unlocks the room so anyone can join."},
-                new ButtonInfo { buttonText = "Spaz Room", method =() => { Overpowered.SetRoomStatus(false); Overpowered.SetRoomStatus(true); }, toolTip = "Locks and unlocks the room so people will get kicked when joining."},
                 new ButtonInfo { buttonText = "Close Room", enableMethod =() => SerializePatch.OverrideSerialization = () => false, method = Overpowered.CloseRoom, disableMethod =() => SerializePatch.OverrideSerialization = null, toolTip = "Kicks everyone in the room." },
                 new ButtonInfo { buttonText = "Spy Room", enableMethod =() => Overpowered.CreatePeerBase(), disableMethod =() => Overpowered.UnloadPeerBase(), toolTip = "Allows you to hear people whilst being disconnected from the room." },
 
