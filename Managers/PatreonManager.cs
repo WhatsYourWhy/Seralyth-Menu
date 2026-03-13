@@ -20,12 +20,13 @@
  */
 
 using ExitGames.Client.Photon;
+using Photon.Pun;
+using Photon.Realtime;
 using Seralyth.Classes.Menu;
 using Seralyth.Extensions;
 using Seralyth.Menu;
+using Seralyth.Mods;
 using Seralyth.Utilities;
-using Photon.Pun;
-using Photon.Realtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -163,9 +164,8 @@ namespace Seralyth.Managers
                     iconPool.Add(playerRig, playerIndicator);
                 }
 
-                float distance = Classes.Menu.Console.GetIndicatorDistance(playerRig);
                 playerIndicator.transform.localScale = new Vector3(0.4f, 0.4f, 0.01f) * playerRig.scaleFactor;
-                playerIndicator.transform.position = playerRig.headMesh.transform.position + playerRig.headMesh.transform.up * (distance * playerRig.scaleFactor);
+                playerIndicator.transform.position = Visuals.GetNameTagTransform(playerRig).position + Visuals.GetNameTagTransform(playerRig).up * (Classes.Menu.Console.GetIndicatorDistance(playerRig) * playerRig.scaleFactor);
                 playerIndicator.transform.LookAt(GorillaTagger.Instance.headCollider.transform.position);
 
                 GameObject nameTag = playerIndicator.transform.Find("Seralyth_Nametag").gameObject;
