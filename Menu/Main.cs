@@ -4688,8 +4688,23 @@ namespace Seralyth.Menu
         /// </summary>
         /// <param name="transform">The transform used to determine the gun's orientation.</param>
         /// <returns>A Vector3 representing the selected gun direction.</returns>
-        public static Vector3 GetGunDirection(Transform transform) =>
-            new[] { transform.forward, - transform.up, transform == GorillaTagger.Instance.rightHandTransform ? ControllerUtilities.GetTrueRightHand().forward : ControllerUtilities.GetTrueLeftHand().forward, GorillaTagger.Instance.headCollider.transform.forward } [GunDirection];
+        public static Vector3 GetGunDirection(Transform transform)
+        {
+            return GunDirection switch
+            {
+                1 => transform.forward,
+
+                2 => -transform.up,
+
+                3 => transform == GorillaTagger.Instance.rightHandTransform
+                    ? ControllerUtilities.GetTrueRightHand().forward
+                    : ControllerUtilities.GetTrueLeftHand().forward,
+
+                4 => GorillaTagger.Instance.headCollider.transform.forward,
+
+                _ => transform.forward
+            };
+        }
 
         /// <summary>
         /// Generates a text-to-speech audio clip from the provided text using various TTS services and invokes a
