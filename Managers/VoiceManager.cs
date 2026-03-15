@@ -301,7 +301,8 @@ namespace Seralyth.Managers
                         Position = 0f,
                         Step = 1f,
                         MuteMicrophone = disableMicrophone,
-                        Gain = clipGain
+                        Gain = clipGain,
+                        Pitch = clipPitch
                     };
 
                     lock (audioClipsLock)
@@ -484,9 +485,9 @@ namespace Seralyth.Managers
             {
                 NextAudioClipSample(out float pushedLeft, out float pushedRight);
 
-                //buffer[i] = Mathf.Clamp(microphoneBuffer[i] + pushedLeft, -1f, 1f);
+                buffer[i] = microphoneBuffer[i] + pushedLeft;
                 if (Channels > 1 && i + 1 < buffer.Length)
-                    buffer[i + 1] = Mathf.Clamp(microphoneBuffer[i + 1] + pushedRight, -1f, 1f);
+                    buffer[i + 1] = microphoneBuffer[i + 1] + pushedRight;
             }
 
             if (PostProcessClip)
