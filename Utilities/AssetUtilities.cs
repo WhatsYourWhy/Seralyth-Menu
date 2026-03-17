@@ -77,7 +77,6 @@ namespace Seralyth.Utilities
 
                 string filePath = $"{GetGamePath()}/{PluginInfo.BaseDirectory}/{fileName}";
                 string url = $"file://{filePath}";
-                LogManager.Log(url);
                 var handler = new DownloadHandlerAudioClip(url, GetAudioType(GetFileExtension(fileName)));
 
                 using UnityWebRequest request = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET, handler, null);
