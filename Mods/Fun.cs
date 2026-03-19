@@ -2008,18 +2008,18 @@ namespace Seralyth.Mods
             }
         }
 
-        public static void SetMicrophoneAmplification(bool amplify)
+        public static void SetMicrophoneAmplification(float gain)
         {
             if (!PhotonNetwork.InRoom)
                 return;
 
             if (RecorderPatch.enabled)
-                VoiceManager.Get().Gain = amplify ? 16f : 1;
+                VoiceManager.Get().Gain = gain;
             else
             {
                 Recorder mic = NetworkSystem.Instance.VoiceConnection.PrimaryRecorder;
 
-                if (amplify)
+                if (gain > 1)
                 {
                     if (mic.gameObject.GetComponent<MicAmplifier>() != null)
                         return;
@@ -2241,6 +2241,7 @@ namespace Seralyth.Mods
 
         private static LoopbackFactory factory;
         private static float copyVoiceGunDelay;
+
         public static void CopyVoiceGun()
         {
             if (GetGunInput(false))
@@ -2248,7 +2249,7 @@ namespace Seralyth.Mods
                 var GunData = RenderGun();
                 RaycastHit Ray = GunData.Ray;
 
-                if (GetGunInput(true))
+                if (gunLocked && lockTarget != null)
                 {
                     VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal())
@@ -2261,9 +2262,19 @@ namespace Seralyth.Mods
                             {
                                 VoiceManager.Get().PostProcessors["CopyVoice"] = buffer =>
                                 {
-                                    for (int i = 0; i < buffer.Length && i < SpeakerPatch.frameOut.Buf.Length; i++)
+                                    float[] src;
+                                    lock (SpeakerPatch.locked)
+                                        src = SpeakerPatch.LatestFrameBuf;
+
+                                    if (src == null || src.Length == 0)
+                                        return;
+
+                                    int len = Math.Min(buffer.Length, src.Length);
+
+                                    for (int i = 0; i < len; i++)
                                     {
-                                        buffer[i] = SpeakerPatch.frameOut.Buf[i];
+                                        buffer[i] += src[i] * 0.8f;
+                                        buffer[i] = Mathf.Clamp(buffer[i], -1f, 1f);
                                     }
                                 };
                             }
@@ -2302,15 +2313,22 @@ namespace Seralyth.Mods
                         NetworkSystem.Instance.VoiceConnection.PrimaryRecorder.DebugEchoMode = true;
                     }
                 }
+                if (GetGunInput(true))
+                {
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    if (gunTarget && !gunTarget.IsLocal())
+                    {
+                        gunLocked = true;
+                        lockTarget = gunTarget;
+                    }
+                }
             }
             else
             {
                 if (gunLocked)
-                {
                     gunLocked = false;
-
+                if (factory != null || VoiceManager.Get().PostProcessors.ContainsKey("CopyVoice"))
                     DisableCopyVoice();
-                }
             }
         }
 
