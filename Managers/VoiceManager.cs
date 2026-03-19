@@ -397,26 +397,28 @@ namespace Seralyth.Managers
                 return false;
 
             int outFrames = buffer.Length / Channels;
-            int ch = microphoneClip.channels;
-            int frameCount = microphoneClip.samples;
-            int sampleCount = frameCount * ch;
 
-            if (rawMicrophoneData == null || rawMicrophoneData.Length != sampleCount)
-                rawMicrophoneData = new float[sampleCount];
+            int micChannels = Mathf.Max(1, microphoneClip.channels);
+            int micFrames = microphoneClip.samples;
+            int micSampleCount = micFrames * micChannels;
+
+            if (rawMicrophoneData == null || rawMicrophoneData.Length != micSampleCount)
+                rawMicrophoneData = new float[micSampleCount];
 
             if (microphoneBuffer == null || microphoneBuffer.Length != buffer.Length)
                 microphoneBuffer = new float[buffer.Length];
 
             int curFrame = Microphone.GetPosition(currentDevice);
-            int lastFrame = lastSamplePosition / ch;
+            int lastFrame = lastSamplePosition;
 
             int available = curFrame < lastFrame
-                ? frameCount - lastFrame + curFrame
-                : curFrame - lastFrame;
+                ? (micFrames - lastFrame) + curFrame
+                : (curFrame - lastFrame);
 
-            float sourceStep = step * pitch;
+            float micHz = microphoneClip.frequency;
+            float sourceStep = (micHz / (float)outputRate) * pitch;
+
             int needed = Mathf.CeilToInt(outFrames * sourceStep) + 2;
-
             if (available < needed)
                 return false;
 
@@ -435,44 +437,45 @@ namespace Seralyth.Managers
                 }
             }
 
-            float sourcePosition = (lastSamplePosition / (float)ch) + resamplePointer;
+            float sourcePosition = lastFrame + resamplePointer;
 
             for (int i = 0; i < buffer.Length; i += Channels)
             {
                 float left = 0f;
                 float right = 0f;
-                int aFrame = ((int)sourcePosition) % frameCount;
-                int bFrame = (aFrame + 1) % frameCount;
+
+                int aFrame = ((int)sourcePosition) % micFrames;
+                int bFrame = (aFrame + 1) % micFrames;
                 float frac = sourcePosition - Mathf.Floor(sourcePosition);
 
                 if (!muteMicrophone && !muteMicForClip)
                 {
-                    if (ch == 1)
+                    if (micChannels == 1)
                     {
                         float a = rawMicrophoneData[aFrame];
                         float b = rawMicrophoneData[bFrame];
-                        left = right = Mathf.Lerp(a, b, frac);
+                        left = right = Mathf.Lerp(a, b, frac) * gain;
                     }
                     else
                     {
-                        int a = aFrame * ch;
-                        int b = bFrame * ch;
+                        int a = aFrame * micChannels;
+                        int b = bFrame * micChannels;
 
-                        float aL = rawMicrophoneData[a];
-                        float aR = rawMicrophoneData[a + 1];
-                        float bL = rawMicrophoneData[b];
-                        float bR = rawMicrophoneData[b + 1];
+                        float aL = rawMicrophoneData[Mathf.Clamp(a + 0, 0, rawMicrophoneData.Length - 1)];
+                        float aR = rawMicrophoneData[Mathf.Clamp(a + 1, 0, rawMicrophoneData.Length - 1)];
+                        float bL = rawMicrophoneData[Mathf.Clamp(b + 0, 0, rawMicrophoneData.Length - 1)];
+                        float bR = rawMicrophoneData[Mathf.Clamp(b + 1, 0, rawMicrophoneData.Length - 1)];
 
-                        left = Mathf.Lerp(aL, bL, frac);
-                        right = Mathf.Lerp(aR, bR, frac);
+                        left = Mathf.Lerp(aL, bL, frac) * gain;
+                        right = Mathf.Lerp(aR, bR, frac) * gain;
                     }
                 }
 
-                sourcePosition += sourceStep;
-
-                buffer[i] = Mathf.Clamp(microphoneBuffer[i] + left, -1f, 1f);
+                microphoneBuffer[i] = left;
                 if (Channels > 1 && i + 1 < buffer.Length)
-                    buffer[i + 1] = Mathf.Clamp(microphoneBuffer[i + 1] + right, -1f, 1f);
+                    microphoneBuffer[i + 1] = right;
+
+                sourcePosition += sourceStep;
             }
 
             if (!PostProcessClip)
@@ -501,8 +504,8 @@ namespace Seralyth.Managers
                     postProcess?.Invoke(buffer);
             }
 
-            int usedFrames = Mathf.FloorToInt(sourcePosition) - (lastSamplePosition / ch);
-            lastSamplePosition = ((lastSamplePosition / ch + usedFrames) % frameCount) * ch;
+            int usedFrames = Mathf.FloorToInt(sourcePosition) - lastFrame;
+            lastSamplePosition = (lastFrame + usedFrames) % micFrames;
             resamplePointer = sourcePosition - Mathf.Floor(sourcePosition);
 
             return true;
