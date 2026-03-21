@@ -3564,12 +3564,12 @@ namespace Seralyth.Mods
 
             List<(string codename, string name)> cosmetics = new List<(string codename, string name)>
             {
-                ("LBANI.", "aa"),
+                ("LBAAD.", "admin"),
+                ("LBAAK.", "stick"),
+                ("LMAPY.", "forestguide"),
                 ("LBADE.", "fingerpainter"),
                 ("LBAGS.", "illustrator"),
-                ("LMAPY.", "forestguide"),
-                ("LBAAK.", "stick"),
-                ("LBAAD.", "admin")
+                ("LBANI.", "aa")
             };
 
             foreach (VRRig vrrig in VRRigCache.ActiveRigs)
