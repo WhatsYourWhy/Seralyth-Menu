@@ -6346,10 +6346,10 @@ namespace Seralyth.Mods
                 Safety.pingSpoofValue = int.Parse(data[68]) - 100;
                 Safety.ChangePingSpoofValue();
 
-                Fun.soundboardVolumeIndex = int.Parse(data[69]) - 1;
+                Fun.soundboardVolumeIndex = float.Parse(data[69]) - 1;
                 Fun.ChangeSoundboardVolume();
 
-                Fun.soundboardSpeedIndex = int.Parse(data[70]) - 1;
+                Fun.soundboardSpeedIndex = float.Parse(data[70]) - 1;
                 Fun.ChangeSoundboardPitch();
 
                 SoundManager.DefaultSoundpack = data[71];
