@@ -280,15 +280,13 @@ namespace Seralyth.Managers
                 return Guid.Empty;
 
             Guid id = Guid.NewGuid();
-
+            int channels = Mathf.Max(1, clip.channels);
+            float[] raw = new float[clip.samples * channels];
+            clip.GetData(raw, 0);
             Task.Run(() =>
             {
                 try
                 {
-                    int channels = Mathf.Max(1, clip.channels);
-                    float[] raw = new float[clip.samples * channels];
-                    clip.GetData(raw, 0);
-
                     if (clip.frequency != OutputRate)
                         raw = Resample(raw, clip.frequency, OutputRate, channels);
 
@@ -484,17 +482,88 @@ namespace Seralyth.Managers
                     postProcess?.Invoke(microphoneBuffer);
             }
 
-            for (int i = 0; i < buffer.Length; i += Channels)
+            for (int i = 0; i < buffer.Length; i++)
             {
-                NextAudioClipSample(out float pushedLeft, out float pushedRight);
+                buffer[i] = microphoneBuffer[i];
+            }
 
-                float mixedLeft = microphoneBuffer[i] + pushedLeft;
-                buffer[i] = Mathf.Clamp(mixedLeft, -1f, 1f);
-
-                if (Channels > 1 && i + 1 < buffer.Length)
+            lock (audioClipsLock)
+            {
+                for (int c = audioClips.Count - 1; c >= 0; c--)
                 {
-                    float mixedRight = microphoneBuffer[i + 1] + pushedRight;
-                    buffer[i + 1] = Mathf.Clamp(mixedRight, -1f, 1f);
+                    var clip = audioClips[c];
+                    bool clipFinished = false;
+
+                    for (int i = 0; i < buffer.Length; i += Channels)
+                    {
+                        int index = (int)clip.Position;
+                        int maxFrames = clip.Samples.Length / clip.Channels;
+
+                        if (index >= maxFrames)
+                        {
+                            clipFinished = true;
+                            break;
+                        }
+
+                        int nextIndex = index + 1;
+                        float left = 0f;
+                        float right = 0f;
+
+                        if (nextIndex >= maxFrames)
+                        {
+                            if (clip.Channels == 1)
+                            {
+                                left = right = clip.Samples[index] * clip.Gain;
+                            }
+                            else
+                            {
+                                int baseIdx = index * clip.Channels;
+                                left = clip.Samples[baseIdx] * clip.Gain;
+                                right = clip.Samples[baseIdx + 1] * clip.Gain;
+                            }
+                            clipFinished = true;
+                        }
+                        else
+                        {
+                            float frac = clip.Position - index;
+
+                            if (clip.Channels == 1)
+                            {
+                                left = right = Mathf.Lerp(
+                                    clip.Samples[index],
+                                    clip.Samples[nextIndex],
+                                    frac
+                                ) * clip.Gain;
+                            }
+                            else
+                            {
+                                int baseIdx1 = index * clip.Channels;
+                                int baseIdx2 = nextIndex * clip.Channels;
+
+                                float l1 = clip.Samples[baseIdx1];
+                                float r1 = clip.Samples[baseIdx1 + 1];
+                                float l2 = clip.Samples[baseIdx2];
+                                float r2 = clip.Samples[baseIdx2 + 1];
+
+                                left = Mathf.Lerp(l1, l2, frac) * clip.Gain;
+                                right = Mathf.Lerp(r1, r2, frac) * clip.Gain;
+                            }
+
+                            clip.Position += Mathf.Max(0.0001f, clip.Step * clip.Pitch);
+                        }
+
+                        buffer[i] += left;
+                        if (Channels > 1 && i + 1 < buffer.Length)
+                        {
+                            buffer[i + 1] += right;
+                        }
+
+                        if (clipFinished) break;
+                    }
+                    if (clipFinished)
+                    {
+                        audioClips.RemoveAt(c);
+                    }
                 }
             }
 
@@ -504,90 +573,16 @@ namespace Seralyth.Managers
                     postProcess?.Invoke(buffer);
             }
 
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                buffer[i] = Mathf.Clamp(buffer[i], -1f, 1f);
+            }
+
             int usedFrames = Mathf.FloorToInt(sourcePosition) - lastFrame;
             lastSamplePosition = (lastFrame + usedFrames) % micFrames;
             resamplePointer = sourcePosition - Mathf.Floor(sourcePosition);
 
             return true;
-        }
-
-        /// <summary>
-        /// Returns the next left and right samples from pushed audio clips.
-        /// </summary>
-        private void NextAudioClipSample(out float outLeft, out float outRight)
-        {
-            outLeft = 0f;
-            outRight = 0f;
-
-            lock (audioClipsLock)
-            {
-                if (audioClips.Count == 0)
-                    return;
-
-                for (int i = audioClips.Count - 1; i >= 0; i--)
-                {
-                    var clip = audioClips[i];
-                    int index = (int)clip.Position;
-                    int maxFrames = clip.Samples.Length / clip.Channels;
-
-                    if (index >= maxFrames)
-                    {
-                        audioClips.RemoveAt(i);
-                        continue;
-                    }
-
-                    int nextIndex = index + 1;
-                    float left = 0f;
-                    float right = 0f;
-
-                    if (nextIndex >= maxFrames)
-                    {
-                        if (clip.Channels == 1)
-                        {
-                            left = right = clip.Samples[index] * clip.Gain;
-                        }
-                        else
-                        {
-                            int baseIdx = index * clip.Channels;
-                            left = clip.Samples[baseIdx] * clip.Gain;
-                            right = clip.Samples[baseIdx + 1] * clip.Gain;
-                        }
-
-                        audioClips.RemoveAt(i);
-                    }
-                    else
-                    {
-                        float frac = clip.Position - index;
-
-                        if (clip.Channels == 1)
-                        {
-                            left = right = Mathf.Lerp(
-                                clip.Samples[index],
-                                clip.Samples[nextIndex],
-                                frac
-                            ) * clip.Gain;
-                        }
-                        else
-                        {
-                            int baseIdx1 = index * clip.Channels;
-                            int baseIdx2 = nextIndex * clip.Channels;
-
-                            float l1 = clip.Samples[baseIdx1];
-                            float r1 = clip.Samples[baseIdx1 + 1];
-                            float l2 = clip.Samples[baseIdx2];
-                            float r2 = clip.Samples[baseIdx2 + 1];
-
-                            left = Mathf.Lerp(l1, l2, frac) * clip.Gain;
-                            right = Mathf.Lerp(r1, r2, frac) * clip.Gain;
-                        }
-
-                        clip.Position += Mathf.Max(0.0001f, clip.Step * clip.Pitch);
-                    }
-
-                    outLeft += left;
-                    outRight += right;
-                }
-            }
         }
 
         public void Dispose()
