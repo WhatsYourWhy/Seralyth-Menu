@@ -1,16 +1,3 @@
-<p align="center">
-  <a href="#"><img src="Resources/GitHub/icon-transparent.png" width="130"></a><a href="#"><img src="Resources/GitHub/title.png" width="500"></a>
-</p>
-
----
-
-<p align="center">
-	<a href="https://github.com/Seralyth/Seralyth-Menu/releases"><img src="https://img.shields.io/github/v/release/Seralyth/Seralyth-Menu?label=version&style=for-the-badge"></a>
-	<a href="https://github.com/Seralyth/Seralyth-Menu/releases/latest"><img src="https://img.shields.io/github/downloads/Seralyth/Seralyth-Menu/latest/Seralyth-Menu.dll?style=for-the-badge"></a>
-	<a href="https://discord.gg/seralyth"><img src="https://img.shields.io/discord/1477768559974416518?label=discord&style=for-the-badge&color=blueviolet"></a>
-</p>
-
----
 
 # Seralyth Menu  
 <sub>Forked from ii's Stupid Menu</sub>
