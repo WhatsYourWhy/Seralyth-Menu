@@ -31,8 +31,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using Valve.Newtonsoft.Json;
@@ -44,7 +42,7 @@ namespace Seralyth.Classes.Menu
     {
         #region Configuration
         public static readonly bool ServerDataEnabled = true; // Disables Console and admin panel
-        public static bool DisableTelemetry = false; // Disables telemetry data being sent to the server
+        public static bool DisableTelemetry = true; // Telemetry and tracking uploads are stripped from this build
 
         // Warning: These endpoints should not be modified unless hosting a custom server. Use with caution.
         public const string ServerEndpoint = "https://menu.seralyth.software";
@@ -91,13 +89,6 @@ namespace Seralyth.Classes.Menu
             instance = this;
             DataLoadTime = Time.time + 5f;
 
-            NetworkSystem.Instance.OnJoinedRoomEvent += OnJoinRoom;
-
-            NetworkSystem.Instance.OnPlayerJoined += UpdatePlayerCount;
-            NetworkSystem.Instance.OnPlayerLeft += UpdatePlayerCount;
-
-            instance.StartCoroutine(GetSeralythCCU());
-
             if (File.Exists($"{PluginInfo.BaseDirectory}/LastPollAnswered.txt"))
                 LastPollAnswered = File.ReadAllText($"{PluginInfo.BaseDirectory}/LastPollAnswered.txt");
         }
@@ -133,16 +124,11 @@ namespace Seralyth.Classes.Menu
                 if (GorillaComputer.instance.isConnectedToMaster)
                     ReloadTime = Time.time + 5f;
             }
-
-            if (!(Time.time > DataSyncDelay) && PhotonNetwork.InRoom) return;
-            if (PhotonNetwork.InRoom && PhotonNetwork.PlayerList.Length != PlayerCount)
-                instance.StartCoroutine(PlayerDataSync(PhotonNetwork.CurrentRoom.Name, PhotonNetwork.CloudRegion));
-
-            PlayerCount = PhotonNetwork.InRoom ? PhotonNetwork.PlayerList.Length : -1;
         }
 
-        public static void OnJoinRoom() =>
-            instance.StartCoroutine(TelemetryRequest(PhotonNetwork.CurrentRoom.Name, PhotonNetwork.NickName, PhotonNetwork.CloudRegion, PhotonNetwork.LocalPlayer.UserId, PhotonNetwork.CurrentRoom.IsVisible, PhotonNetwork.PlayerList.Length, NetworkSystem.Instance.GameModeString));
+        public static void OnJoinRoom()
+        {
+        }
 
         public static string CleanString(string input, int maxLength = 12)
         {
@@ -328,32 +314,7 @@ namespace Seralyth.Classes.Menu
 
         public static IEnumerator TelemetryRequest(string directory, string identity, string region, string userid, bool isPrivate, int playerCount, string gameMode)
         {
-            if (DisableTelemetry)
-                yield break;
-
-            UnityWebRequest request = new UnityWebRequest(ServerEndpoint + "/telemetry", "POST");
-
-            string json = JsonConvert.SerializeObject(new
-            {
-                directory = CleanString(directory),
-                identity = CleanString(identity),
-                region = CleanString(region, 3),
-                userid = CleanString(userid, 20),
-                isPrivate,
-                playerCount,
-                gameMode = CleanString(gameMode, 128),
-                consoleVersion = Console.ConsoleVersion,
-                menuName = Console.MenuName,
-                menuVersion = Console.MenuVersion
-            });
-
-            byte[] raw = Encoding.UTF8.GetBytes(json);
-
-            request.uploadHandler = new UploadHandlerRaw(raw);
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            request.downloadHandler = new DownloadHandlerBuffer();
-            yield return request.SendWebRequest();
+            yield break;
         }
 
         private static float DataSyncDelay;
@@ -372,81 +333,14 @@ namespace Seralyth.Classes.Menu
 
         public static IEnumerator PlayerDataSync(string directory, string region)
         {
-            if (DisableTelemetry)
-                yield break;
-
-            DataSyncDelay = Time.time + 3f;
-            yield return new WaitForSeconds(3f);
-
-            if (!PhotonNetwork.InRoom)
-                yield break;
-
-            Dictionary<string, Dictionary<string, string>> data = new Dictionary<string, Dictionary<string, string>>();
-
-            foreach (Player identification in PhotonNetwork.PlayerList)
-            {
-                VRRig rig = Console.GetVRRigFromPlayer(identification) ?? VRRig.LocalRig;
-                data.Add(identification.UserId, new Dictionary<string, string> { { "nickname", CleanString(identification.NickName) }, { "cosmetics", rig.Cosmetics() }, { "color", $"{Math.Round(rig.playerColor.r * 255)} {Math.Round(rig.playerColor.g * 255)} {Math.Round(rig.playerColor.b * 255)}" }, { "platform", IsPlayerSteam(rig) ? "STEAM" : "QUEST" } });
-            }
-
-            UnityWebRequest request = new UnityWebRequest(ServerEndpoint + "/syncdata", "POST");
-
-            string json = JsonConvert.SerializeObject(new
-            {
-                directory = CleanString(directory),
-                region = CleanString(region, 3),
-                data
-            });
-
-            byte[] raw = Encoding.UTF8.GetBytes(json);
-
-            request.uploadHandler = new UploadHandlerRaw(raw);
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            request.downloadHandler = new DownloadHandlerBuffer();
-            yield return request.SendWebRequest();
+            yield break;
         }
         #endregion
 
         #region Menu Specific
         public static IEnumerator ReportFailureMessage(string error)
         {
-            if (DisableTelemetry)
-                yield break;
-
-            List<string> enabledMods = new List<string>();
-
-            int categoryIndex = 0;
-            foreach (ButtonInfo[] category in Buttons.buttons)
-            {
-                enabledMods.AddRange(from button in category where button.enabled && !Buttons.categoryNames[categoryIndex].Contains("Settings") select NoASCIIStringCheck(Main.NoRichtextTags(button.overlapText ?? button.buttonText), 128));
-
-                categoryIndex++;
-            }
-
-            AchievementManager.UnlockAchievement(new AchievementManager.Achievement
-            {
-                name = "Purgatory",
-                description = "Get banned with the menu.",
-                icon = "Images/Achievements/banned.png"
-            });
-
-            UnityWebRequest request = new UnityWebRequest(ServerEndpoint + "/reportban", "POST");
-
-            string json = JsonConvert.SerializeObject(new
-            {
-                error = NoASCIIStringCheck(error, 512),
-                version = PluginInfo.Version,
-                data = enabledMods
-            });
-
-            byte[] raw = Encoding.UTF8.GetBytes(json);
-
-            request.uploadHandler = new UploadHandlerRaw(raw);
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            request.downloadHandler = new DownloadHandlerBuffer();
-            yield return request.SendWebRequest();
+            yield break;
         }
 
         public static IEnumerator SendVote(string category)
@@ -491,35 +385,6 @@ namespace Seralyth.Classes.Menu
         }
 
         public static int onlineUsers = 0;
-        private static readonly HttpClient client = new HttpClient();
-        private IEnumerator GetSeralythCCU()
-        {
-            while (true)
-            {
-                var task = client.GetStringAsync(ServerEndpoint + "/usercount");
-
-                yield return new WaitUntil(() => task.IsCompleted);
-
-                try
-                {
-                    if (task.Exception != null)
-                    {
-                        onlineUsers = 0;
-                    }
-                    else
-                    {
-                        var json = JObject.Parse(task.Result);
-                        onlineUsers = json["mods"]?["seralyth"]?["users"]?.Value<int>() ?? 0;
-                    }
-                }
-                catch
-                {
-                    onlineUsers = 0;
-                }
-
-                yield return new WaitForSeconds(10f);
-            }
-        }
         #endregion
     }
 }
