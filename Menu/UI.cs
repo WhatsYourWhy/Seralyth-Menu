@@ -424,8 +424,8 @@ namespace Seralyth.Menu
                     }
                 case "telemetry":
                     {
-                        ServerData.DisableTelemetry = args.Length < 1 || args[1] == "false";
-                        DebugPrint($"Telemetry is now {(ServerData.DisableTelemetry ? "disabled" : "enabled")}");
+                        ServerData.DisableTelemetry = true;
+                        DebugPrint("Telemetry uploads are stripped from this build and cannot be re-enabled.");
                         break;
                     }
                 case "prompt":
